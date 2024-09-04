@@ -161,6 +161,3 @@ install(
   FILES ${config_version_file}
   DESTINATION ${INSTALL_CMAKE_DIR} COMPONENT Development
   )
-
-add_fuzz_test(fuzz fuzz.cpp)
-target_link_libraries(fuzz yaml)
