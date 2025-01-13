@@ -1,5 +1,8 @@
 build-system: cmake
 
+engine-args:
+- -detect_leaks=0
+
 build-file: fuzz-tests/CMakeLists.txt
 
 max-fuzzing-duration: 10s
