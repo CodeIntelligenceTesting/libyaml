@@ -3,3 +3,7 @@ build-system: cmake
 build-file: fuzz-tests/CMakeLists.txt
 
 max-fuzzing-duration: 10s
+
+candidate-excludes:
+- "**/*_test.*"
+- "test*/**"
