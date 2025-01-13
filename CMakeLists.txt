@@ -161,3 +161,6 @@ install(
   FILES ${config_version_file}
   DESTINATION ${INSTALL_CMAKE_DIR} COMPONENT Development
   )
+
+
+add_subdirectory(fuzz-tests)

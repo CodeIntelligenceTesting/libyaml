@@ -1,1 +1,3 @@
 build-system: cmake
+
+build-file: fuzz-tests/CMakeLists.txt
