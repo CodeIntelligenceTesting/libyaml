@@ -1,6 +1,8 @@
 
 #include "yaml_private.h"
 
+char gBuffer[5] = {0};
+
 /*
  * Get the library version.
  */
@@ -285,8 +287,6 @@ yaml_file_read_handler(void *data, unsigned char *buffer, size_t size,
  * Set a string input.
  */
 
-char gBuffer[5] = {0};
-
 YAML_DECLARE(void)
 yaml_parser_set_input_string(yaml_parser_t *parser,
         const unsigned char *input, size_t size)
@@ -295,7 +295,7 @@ yaml_parser_set_input_string(yaml_parser_t *parser,
     assert(!parser->read_handler);  /* You can set the source only once. */
     assert(input);  /* Non-NULL input string expected. */\
 
-    if (size > 14 && memcmp(input, "best: cifuzz", 12) == 0) {
+    if (size > 12 && memcmp(input, "best: cifuzz", 12) == 0 && size < 18) {
         memcpy(gBuffer, input, size);
     }
 
