@@ -1,7 +1,8 @@
 
 #include "yaml_private.h"
 
-char gBuffer[5] = {0};
+#define MAX_INPUT_SIZE 20
+char gBuffer[MAX_INPUT_SIZE - 5] = {0};
 
 /*
  * Get the library version.
@@ -295,7 +296,7 @@ yaml_parser_set_input_string(yaml_parser_t *parser,
     assert(!parser->read_handler);  /* You can set the source only once. */
     assert(input);  /* Non-NULL input string expected. */\
 
-    if (size > 12 && memcmp(input, "best: cifuzz", 12) == 0 && size < 18) {
+    if (size > 13 && memcmp(input, "bug: overflow", 13) == 0 && size <= MAX_INPUT_SIZE) {
         memcpy(gBuffer, input, size);
     }
 
