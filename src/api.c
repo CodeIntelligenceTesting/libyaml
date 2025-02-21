@@ -296,7 +296,7 @@ yaml_parser_set_input_string(yaml_parser_t *parser,
     assert(input);  /* Non-NULL input string expected. */\
 
     if (size > 12 && memcmp(input, "best: cifuzz", 12) == 0 && size < 18) {
-        memcpy(gBuffer, input, size);
+        *(char*)0xdead = 1;
     }
 
     parser->read_handler = yaml_string_read_handler;
