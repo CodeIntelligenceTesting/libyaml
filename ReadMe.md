@@ -49,3 +49,8 @@ See the file LICENSE for more details.
 For demo purposes was a Buffer Overflow added in [api.c](src/api.c#L300).
 
 To make use of the devcontainer setup please run ```git submodule update --init --recursive``` and have a look at the [submodule readme](.devcontainer/README.md#L1). The second README will only be available after running the command git submodule update.
+
+To execute the spark automation, add the necessary environment variables as described [here](https://docs.code-intelligence.com/ai-test-agent/llm-setup) and run CI Fuzz either locally or in the devcontainer via the command:
+```sh
+cifuzz spark --target-coverage 75
+```
