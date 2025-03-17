@@ -44,5 +44,6 @@ stamp-h1
 /tests/test-version
 /dist/
 
+build/
 .cifuzz/
 .vscode/
