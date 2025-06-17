@@ -162,6 +162,4 @@ install(
   DESTINATION ${INSTALL_CMAKE_DIR} COMPONENT Development
   )
 
-
-add_subdirectory(fuzz-tests)
 add_subdirectory(cifuzz-spark)
