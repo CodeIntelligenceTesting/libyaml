@@ -164,3 +164,4 @@ install(
 
 
 add_subdirectory(fuzz-tests)
+add_subdirectory(cifuzz-spark)

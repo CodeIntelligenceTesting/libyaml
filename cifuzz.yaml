@@ -5,11 +5,9 @@
 ## detect the build system automatically.
 ## Valid values: "bazel", "cmake", "other"
 build-system: cmake
-
 ## Engine used for fuzzing, default is "libfuzzer-clang".
 ## Valid values: "libfuzzer-clang", "honggfuzz-clang", "honggfuzz-gcc"
 engine: libfuzzer-clang
-
 ## If the build system type is "other", this command is used to build the fuzz
 ## tests.
 #build-command: make my_fuzz_test
@@ -26,7 +24,6 @@ engine: libfuzzer-clang
 ## building fuzz tests.
 #build-system-args:
 # - -DBUILD_TESTS=ON
-
 
 ## Directories containing sample inputs used as seeds for running fuzz tests.
 ## For general information on seed corpora, see:
@@ -47,7 +44,7 @@ engine: libfuzzer-clang
 ## Command-line arguments to pass to libFuzzer when running fuzz tests.
 ## See https://llvm.org/docs/LibFuzzer.html#options for possible options.
 libfuzzer-args:
- - -detect_leaks=0
+    - -detect_leaks=0
 # - -rss_limit_mb=4096
 
 ## Command-line arguments to pass to Honggfuzz when running fuzz tests.
@@ -59,7 +56,6 @@ libfuzzer-args:
 ## split up evenly between multiple fuzz tests. To keep running indefinitely,
 ## set value to 0.
 max-fuzzing-duration: 10s
-
 ## Set to true to print output of the `cifuzz run` command as JSON.
 #print-json: true
 
@@ -69,11 +65,10 @@ max-fuzzing-duration: 10s
 ## Set style for command output.
 ## Valid values: "pretty", "plain"
 #style: plain
-
 build-file: cifuzz-spark/CMakeLists.txt
 #llm-hint-files:
 # - cifuzz-spark/hints.txt
 
 candidate-excludes:
-- "**/*_test.*"
-- "test*/**"
+    - "**/*_test.*"
+    - "test*/**"
