@@ -1,5 +1,0 @@
-After calling `yaml_parser_initialize` the parser has to be freed with
-`yaml_parser_delete(&parser)` in all code paths.
-
-Make sure to deallocate any created yaml documents with `yaml_document_delete`.
-This is also important for the root yaml document, or an array of `documents`.
