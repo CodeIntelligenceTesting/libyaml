@@ -1,4 +1,4 @@
-#include <yaml.h>
+#include <ci.h>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -20,14 +20,14 @@ main(int argc, char *argv[])
     int show_error = 0;
 
     if (argc < 2) {
-        printf("Usage: %s file1.yaml ...\n", argv[0]);
+        printf("Usage: %s file1.ci ...\n", argv[0]);
         return 0;
     }
     for (i = 1; i < argc; i++) {
         if (strncmp(argv[i], "--max-level", 11) == 0) {
             i++;
             max_level = strtol(argv[i], &output, 10);
-            yaml_set_max_nest_level(max_level);
+            ci_set_max_nest_level(max_level);
             start = i+1;
         }
         else if (strncmp(argv[i], "--show-error", 12) == 0) {
@@ -39,8 +39,8 @@ main(int argc, char *argv[])
     for (number = start; number < argc; number ++)
     {
         FILE *file;
-        yaml_parser_t parser;
-        yaml_event_t event;
+        ci_parser_t parser;
+        ci_event_t event;
         int done = 0;
         int count = 0;
         int error = 0;
@@ -52,13 +52,13 @@ main(int argc, char *argv[])
         file = fopen(filename, "rb");
         assert(file);
 
-        assert(yaml_parser_initialize(&parser));
+        assert(ci_parser_initialize(&parser));
 
-        yaml_parser_set_input_file(&parser, file);
+        ci_parser_set_input_file(&parser, file);
 
         while (!done)
         {
-            if (!yaml_parser_parse(&parser, &event)) {
+            if (!ci_parser_parse(&parser, &event)) {
                 error = 1;
                 if (show_error) {
                     fprintf(stderr, "Parse error: %s\nLine: %lu Column: %lu\n",
@@ -69,14 +69,14 @@ main(int argc, char *argv[])
                 break;
             }
 
-            done = (event.type == YAML_STREAM_END_EVENT);
+            done = (event.type == CI_STREAM_END_EVENT);
 
-            yaml_event_delete(&event);
+            ci_event_delete(&event);
 
             count ++;
         }
 
-        yaml_parser_delete(&parser);
+        ci_parser_delete(&parser);
 
         assert(!fclose(file));
 

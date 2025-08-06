@@ -1,7 +1,7 @@
 
-function(add_yaml_executable name)
+function(add_ci_executable name)
   add_executable(${name} ${name}.c)
-  target_link_libraries(${name} yaml)
+  target_link_libraries(${name} ci)
 endfunction()
 
 foreach(name IN ITEMS
@@ -19,7 +19,7 @@ foreach(name IN ITEMS
   test-reader
   test-version
   )
-  add_yaml_executable(${name})
+  add_ci_executable(${name})
 endforeach()
 
 add_test(NAME version COMMAND test-version)

@@ -1,9 +1,9 @@
-#include <yaml.h>
+#include <ci.h>
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
-#include "../src/yaml_private.h"
+#include "../src/ci_private.h"
 
 int get_line(FILE * input, char *line);
 char *get_anchor(char sigil, char *line, char *anchor);
@@ -14,9 +14,9 @@ int usage(int ret);
 int main(int argc, char *argv[])
 {
     FILE *input;
-    yaml_emitter_t emitter;
-    yaml_event_t event;
-    yaml_version_directive_t *version_directive = NULL;
+    ci_emitter_t emitter;
+    ci_event_t event;
+    ci_version_directive_t *version_directive = NULL;
 
     int canonical = 0;
     int unicode = 0;
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 
     }
     if (minor) {
-        version_directive = YAML_MALLOC_STATIC(yaml_version_directive_t);
+        version_directive = CI_MALLOC_STATIC(ci_version_directive_t);
         version_directive->major = 1;
         version_directive->minor = minor;
     }
@@ -71,13 +71,13 @@ int main(int argc, char *argv[])
 
     assert(input);
 
-    if (!yaml_emitter_initialize(&emitter)) {
+    if (!ci_emitter_initialize(&emitter)) {
         fprintf(stderr, "Could not initialize the emitter object\n");
         return 1;
     }
-    yaml_emitter_set_output_file(&emitter, stdout);
-    yaml_emitter_set_canonical(&emitter, canonical);
-    yaml_emitter_set_unicode(&emitter, unicode);
+    ci_emitter_set_output_file(&emitter, stdout);
+    ci_emitter_set_canonical(&emitter, canonical);
+    ci_emitter_set_unicode(&emitter, unicode);
 
 
     while (get_line(input, line)) {
@@ -88,44 +88,44 @@ int main(int argc, char *argv[])
         int style;
 
         if (strncmp(line, "+STR", 4) == 0) {
-            ok = yaml_stream_start_event_initialize(&event, YAML_UTF8_ENCODING);
+            ok = ci_stream_start_event_initialize(&event, CI_UTF8_ENCODING);
         }
         else if (strncmp(line, "-STR", 4) == 0) {
-            ok = yaml_stream_end_event_initialize(&event);
+            ok = ci_stream_end_event_initialize(&event);
         }
         else if (strncmp(line, "+DOC", 4) == 0) {
             implicit = strncmp(line+4, " ---", 4) != 0;
-            ok = yaml_document_start_event_initialize(&event, version_directive, NULL, NULL, implicit);
+            ok = ci_document_start_event_initialize(&event, version_directive, NULL, NULL, implicit);
         }
         else if (strncmp(line, "-DOC", 4) == 0) {
             implicit = strncmp(line+4, " ...", 4) != 0;
-            ok = yaml_document_end_event_initialize(&event, implicit);
+            ok = ci_document_end_event_initialize(&event, implicit);
         }
         else if (strncmp(line, "+MAP", 4) == 0) {
-            style = YAML_BLOCK_MAPPING_STYLE;
+            style = CI_BLOCK_MAPPING_STYLE;
             if (flow == 1)
-                style = YAML_FLOW_MAPPING_STYLE;
+                style = CI_FLOW_MAPPING_STYLE;
             else if (flow == 0 && strncmp(line+5, "{}", 2) == 0)
-                style = YAML_FLOW_MAPPING_STYLE;
-            ok = yaml_mapping_start_event_initialize(&event, (yaml_char_t *)
-                                                     get_anchor('&', line, anchor), (yaml_char_t *)
+                style = CI_FLOW_MAPPING_STYLE;
+            ok = ci_mapping_start_event_initialize(&event, (ci_char_t *)
+                                                     get_anchor('&', line, anchor), (ci_char_t *)
                                                      get_tag(line, tag), 0, style);
         }
         else if (strncmp(line, "-MAP", 4) == 0) {
-            ok = yaml_mapping_end_event_initialize(&event);
+            ok = ci_mapping_end_event_initialize(&event);
         }
         else if (strncmp(line, "+SEQ", 4) == 0) {
-            style = YAML_BLOCK_SEQUENCE_STYLE;
+            style = CI_BLOCK_SEQUENCE_STYLE;
             if (flow == 1)
-                style = YAML_FLOW_MAPPING_STYLE;
+                style = CI_FLOW_MAPPING_STYLE;
             else if (flow == 0 && strncmp(line+5, "[]", 2) == 0)
-                style = YAML_FLOW_SEQUENCE_STYLE;
-            ok = yaml_sequence_start_event_initialize(&event, (yaml_char_t *)
-                                                      get_anchor('&', line, anchor), (yaml_char_t *)
+                style = CI_FLOW_SEQUENCE_STYLE;
+            ok = ci_sequence_start_event_initialize(&event, (ci_char_t *)
+                                                      get_anchor('&', line, anchor), (ci_char_t *)
                                                       get_tag(line, tag), 0, style);
         }
         else if (strncmp(line, "-SEQ", 4) == 0) {
-            ok = yaml_sequence_end_event_initialize(&event);
+            ok = ci_sequence_end_event_initialize(&event);
         }
         else if (strncmp(line, "=VAL", 4) == 0) {
             char value[1024];
@@ -134,11 +134,11 @@ int main(int argc, char *argv[])
             get_value(line, value, &style);
             implicit = (get_tag(line, tag) == NULL);
 
-            ok = yaml_scalar_event_initialize(&event, (yaml_char_t *)
-                                              get_anchor('&', line, anchor), (yaml_char_t *) get_tag(line, tag), (yaml_char_t *) value, -1, implicit, implicit, style);
+            ok = ci_scalar_event_initialize(&event, (ci_char_t *)
+                                              get_anchor('&', line, anchor), (ci_char_t *) get_tag(line, tag), (ci_char_t *) value, -1, implicit, implicit, style);
         }
         else if (strncmp(line, "=ALI", 4) == 0) {
-            ok = yaml_alias_event_initialize(&event, (yaml_char_t *)
+            ok = ci_alias_event_initialize(&event, (ci_char_t *)
                                              get_anchor('*', line, anchor)
                 );
         }
@@ -150,25 +150,25 @@ int main(int argc, char *argv[])
 
         if (!ok)
             goto event_error;
-        if (!yaml_emitter_emit(&emitter, &event))
+        if (!ci_emitter_emit(&emitter, &event))
             goto emitter_error;
     }
 
     assert(!fclose(input));
-    yaml_emitter_delete(&emitter);
+    ci_emitter_delete(&emitter);
     fflush(stdout);
 
     return 0;
 
   emitter_error:
     switch (emitter.error) {
-    case YAML_MEMORY_ERROR:
+    case CI_MEMORY_ERROR:
         fprintf(stderr, "Memory error: Not enough memory for emitting\n");
         break;
-    case YAML_WRITER_ERROR:
+    case CI_WRITER_ERROR:
         fprintf(stderr, "Writer error: %s\n", emitter.problem);
         break;
-    case YAML_EMITTER_ERROR:
+    case CI_EMITTER_ERROR:
         fprintf(stderr, "Emitter error: %s\n", emitter.problem);
         break;
     default:
@@ -178,12 +178,12 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Internal error\n");
         break;
     }
-    yaml_emitter_delete(&emitter);
+    ci_emitter_delete(&emitter);
     return 1;
 
   event_error:
     fprintf(stderr, "Memory error: Not enough memory for creating an event\n");
-    yaml_emitter_delete(&emitter);
+    ci_emitter_delete(&emitter);
     return 1;
 }
 
@@ -241,15 +241,15 @@ void get_value(char *line, char *value, int *style)
         if (*c == ' ') {
             start = c + 1;
             if (*start == ':')
-                *style = YAML_PLAIN_SCALAR_STYLE;
+                *style = CI_PLAIN_SCALAR_STYLE;
             else if (*start == '\'')
-                *style = YAML_SINGLE_QUOTED_SCALAR_STYLE;
+                *style = CI_SINGLE_QUOTED_SCALAR_STYLE;
             else if (*start == '"')
-                *style = YAML_DOUBLE_QUOTED_SCALAR_STYLE;
+                *style = CI_DOUBLE_QUOTED_SCALAR_STYLE;
             else if (*start == '|')
-                *style = YAML_LITERAL_SCALAR_STYLE;
+                *style = CI_LITERAL_SCALAR_STYLE;
             else if (*start == '>')
-                *style = YAML_FOLDED_SCALAR_STYLE;
+                *style = CI_FOLDED_SCALAR_STYLE;
             else {
                 start = NULL;
                 continue;

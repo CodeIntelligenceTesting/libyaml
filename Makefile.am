@@ -5,12 +5,12 @@ SUBDIRS = include src . tests
 
 EXTRA_DIST = Changes ReadMe.md License CMakeLists.txt doc/doxygen.cfg
 
-LIBYAML_TEST_SUITE_RUN_REPO_DEFAULT := https://github.com/yaml/libyaml
-LIBYAML_TEST_SUITE_RUN_REPO ?= $(LIBYAML_TEST_SUITE_RUN_REPO_DEFAULT)
-LIBYAML_TEST_SUITE_RUN_BRANCH ?= run-test-suite
+LIBCI_TEST_SUITE_RUN_REPO_DEFAULT := https://github.com/ci/libci
+LIBCI_TEST_SUITE_RUN_REPO ?= $(LIBCI_TEST_SUITE_RUN_REPO_DEFAULT)
+LIBCI_TEST_SUITE_RUN_BRANCH ?= run-test-suite
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = yaml-0.1.pc
+pkgconfig_DATA = ci-0.1.pc
 
 maintainer-clean-local:
 	rm -f aclocal.m4 config.h.in configure config/*
@@ -35,17 +35,17 @@ test-suite: tests/run-test-suite all
 test-all: test test-suite
 
 tests/run-test-suite:
-ifeq ($(LIBYAML_TEST_SUITE_RUN_REPO),$(LIBYAML_TEST_SUITE_RUN_REPO_DEFAULT))
-	  -git branch --track $(LIBYAML_TEST_SUITE_RUN_BRANCH) origin/$(LIBYAML_TEST_SUITE_RUN_BRANCH)
+ifeq ($(LIBCI_TEST_SUITE_RUN_REPO),$(LIBCI_TEST_SUITE_RUN_REPO_DEFAULT))
+	  -git branch --track $(LIBCI_TEST_SUITE_RUN_BRANCH) origin/$(LIBCI_TEST_SUITE_RUN_BRANCH)
 	  -git worktree prune
-	  git worktree add $@ $(LIBYAML_TEST_SUITE_RUN_BRANCH)
+	  git worktree add $@ $(LIBCI_TEST_SUITE_RUN_BRANCH)
     else
-	  git clone --branch $(LIBYAML_TEST_SUITE_RUN_BRANCH) $(LIBYAML_TEST_SUITE_RUN_REPO) $@
+	  git clone --branch $(LIBCI_TEST_SUITE_RUN_BRANCH) $(LIBCI_TEST_SUITE_RUN_REPO) $@
     endif
 
 docker-build:
 	make -C pkg/docker build
 
 docker-dist:
-	make -C pkg/docker libyaml-dist
+	make -C pkg/docker libci-dist
 

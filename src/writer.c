@@ -1,24 +1,24 @@
 
-#include "yaml_private.h"
+#include "ci_private.h"
 
 /*
  * Declarations.
  */
 
 static int
-yaml_emitter_set_writer_error(yaml_emitter_t *emitter, const char *problem);
+ci_emitter_set_writer_error(ci_emitter_t *emitter, const char *problem);
 
-YAML_DECLARE(int)
-yaml_emitter_flush(yaml_emitter_t *emitter);
+CI_DECLARE(int)
+ci_emitter_flush(ci_emitter_t *emitter);
 
 /*
  * Set the writer error and return 0.
  */
 
 static int
-yaml_emitter_set_writer_error(yaml_emitter_t *emitter, const char *problem)
+ci_emitter_set_writer_error(ci_emitter_t *emitter, const char *problem)
 {
-    emitter->error = YAML_WRITER_ERROR;
+    emitter->error = CI_WRITER_ERROR;
     emitter->problem = problem;
 
     return 0;
@@ -28,8 +28,8 @@ yaml_emitter_set_writer_error(yaml_emitter_t *emitter, const char *problem)
  * Flush the output buffer.
  */
 
-YAML_DECLARE(int)
-yaml_emitter_flush(yaml_emitter_t *emitter)
+CI_DECLARE(int)
+ci_emitter_flush(ci_emitter_t *emitter)
 {
     int low, high;
 
@@ -48,7 +48,7 @@ yaml_emitter_flush(yaml_emitter_t *emitter)
 
     /* If the output encoding is UTF-8, we don't need to recode the buffer. */
 
-    if (emitter->encoding == YAML_UTF8_ENCODING)
+    if (emitter->encoding == CI_UTF8_ENCODING)
     {
         if (emitter->write_handler(emitter->write_handler_data,
                     emitter->buffer.start,
@@ -58,14 +58,14 @@ yaml_emitter_flush(yaml_emitter_t *emitter)
             return 1;
         }
         else {
-            return yaml_emitter_set_writer_error(emitter, "write error");
+            return ci_emitter_set_writer_error(emitter, "write error");
         }
     }
 
     /* Recode the buffer into the raw buffer. */
 
-    low = (emitter->encoding == YAML_UTF16LE_ENCODING ? 0 : 1);
-    high = (emitter->encoding == YAML_UTF16LE_ENCODING ? 1 : 0);
+    low = (emitter->encoding == CI_UTF16LE_ENCODING ? 0 : 1);
+    high = (emitter->encoding == CI_UTF16LE_ENCODING ? 1 : 0);
 
     while (emitter->buffer.pointer != emitter->buffer.last)
     {
@@ -135,7 +135,7 @@ yaml_emitter_flush(yaml_emitter_t *emitter)
         return 1;
     }
     else {
-        return yaml_emitter_set_writer_error(emitter, "write error");
+        return ci_emitter_set_writer_error(emitter, "write error");
     }
 }
 

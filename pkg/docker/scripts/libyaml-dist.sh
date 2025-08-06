@@ -2,14 +2,14 @@
 
 set -ex
 
-cp -r /output/libyaml.git /tmp/
-cd /tmp/libyaml.git
+cp -r /output/libci.git /tmp/
+cd /tmp/libci.git
 ./bootstrap
 ./configure
 make dist
 
 # get the tarball filename
-tarballs=(yaml-*.tar.gz)
+tarballs=(ci-*.tar.gz)
 tarball=${tarballs[0]:?}
 dirname=${tarball/.tar.gz/}
 

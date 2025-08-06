@@ -9,12 +9,12 @@ RUN apt-get update && \
         git \
         libtool && \
     rm -rf /var/lib/apt/lists/* && \
-    mkdir /libyaml
+    mkdir /libci
 
-COPY . /libyaml/
-WORKDIR /libyaml
+COPY . /libci/
+WORKDIR /libci
 
-ENV LD_LIBRARY_PATH=/libyaml/src/.libs
+ENV LD_LIBRARY_PATH=/libci/src/.libs
 
 RUN ./bootstrap && \
     ./configure && \

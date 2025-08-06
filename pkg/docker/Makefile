@@ -1,4 +1,4 @@
-DOCKER_IMAGE ?= yamlio/libyaml-dev
+DOCKER_IMAGE ?= ciio/libci-dev
 
 build:
 	docker build -t $(DOCKER_IMAGE) .
@@ -7,17 +7,17 @@ run: build
 	docker run -it --rm $(DOCKER_IMAGE) bash
 
 prepare-git:
-	rm -rf output/libyaml.git
-	git clone ../../.git output/libyaml.git
+	rm -rf output/libci.git
+	git clone ../../.git output/libci.git
 
-libyaml-dist: libyaml-dist-ci
+libci-dist: libci-dist-ci
 
-libyaml-dist-ci: prepare-git
+libci-dist-ci: prepare-git
 	docker run --rm -u $$(id -u) \
 	  -v"$$PWD/output:/output" \
 	  -v"$$PWD/scripts:/scripts" \
-	  $(DOCKER_IMAGE) /scripts/libyaml-dist.sh
+	  $(DOCKER_IMAGE) /scripts/libci-dist.sh
 
 clean:
-	rm -rf output/libyaml.git
-	rm -rf output/yaml-*.*
+	rm -rf output/libci.git
+	rm -rf output/ci-*.*

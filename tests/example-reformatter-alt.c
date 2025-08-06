@@ -1,5 +1,5 @@
 
-#include <yaml.h>
+#include <ci.h>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -13,9 +13,9 @@ main(int argc, char *argv[])
     int k;
     int done = 0;
 
-    yaml_parser_t parser;
-    yaml_emitter_t emitter;
-    yaml_document_t document;
+    ci_parser_t parser;
+    ci_emitter_t emitter;
+    ci_document_t document;
 
     /* Clear the objects. */
 
@@ -55,9 +55,9 @@ main(int argc, char *argv[])
     if (help)
     {
         printf("%s [--canonical] [--unicode] <input >output\n"
-                "or\n%s -h | --help\nReformat a YAML stream\n\nOptions:\n"
+                "or\n%s -h | --help\nReformat a CI stream\n\nOptions:\n"
                 "-h, --help\t\tdisplay this help and exit\n"
-                "-c, --canonical\t\toutput in the canonical YAML format\n"
+                "-c, --canonical\t\toutput in the canonical CI format\n"
                 "-u, --unicode\t\toutput unescaped non-ASCII characters\n",
                 argv[0], argv[0]);
         return 0;
@@ -65,22 +65,22 @@ main(int argc, char *argv[])
 
     /* Initialize the parser and emitter objects. */
 
-    if (!yaml_parser_initialize(&parser))
+    if (!ci_parser_initialize(&parser))
         goto parser_error;
 
-    if (!yaml_emitter_initialize(&emitter))
+    if (!ci_emitter_initialize(&emitter))
         goto emitter_error;
 
     /* Set the parser parameters. */
 
-    yaml_parser_set_input_file(&parser, stdin);
+    ci_parser_set_input_file(&parser, stdin);
 
     /* Set the emitter parameters. */
 
-    yaml_emitter_set_output_file(&emitter, stdout);
+    ci_emitter_set_output_file(&emitter, stdout);
 
-    yaml_emitter_set_canonical(&emitter, canonical);
-    yaml_emitter_set_unicode(&emitter, unicode);
+    ci_emitter_set_canonical(&emitter, canonical);
+    ci_emitter_set_unicode(&emitter, unicode);
 
     /* The main loop. */
 
@@ -88,23 +88,23 @@ main(int argc, char *argv[])
     {
         /* Get the next event. */
 
-        if (!yaml_parser_load(&parser, &document))
+        if (!ci_parser_load(&parser, &document))
             goto parser_error;
 
         /* Check if this is the stream end. */
 
-        if (!yaml_document_get_root_node(&document)) {
+        if (!ci_document_get_root_node(&document)) {
             done = 1;
         }
 
         /* Emit the event. */
 
-        if (!yaml_emitter_dump(&emitter, &document))
+        if (!ci_emitter_dump(&emitter, &document))
             goto emitter_error;
     }
 
-    yaml_parser_delete(&parser);
-    yaml_emitter_delete(&emitter);
+    ci_parser_delete(&parser);
+    ci_emitter_delete(&emitter);
 
     return 0;
 
@@ -114,11 +114,11 @@ parser_error:
 
     switch (parser.error)
     {
-        case YAML_MEMORY_ERROR:
+        case CI_MEMORY_ERROR:
             fprintf(stderr, "Memory error: Not enough memory for parsing\n");
             break;
 
-        case YAML_READER_ERROR:
+        case CI_READER_ERROR:
             if (parser.problem_value != -1) {
                 fprintf(stderr, "Reader error: %s: #%X at %zd\n", parser.problem,
                         parser.problem_value, parser.problem_offset);
@@ -129,7 +129,7 @@ parser_error:
             }
             break;
 
-        case YAML_SCANNER_ERROR:
+        case CI_SCANNER_ERROR:
             if (parser.context) {
                 fprintf(stderr, "Scanner error: %s at line %lu, column %lu\n"
                         "%s at line %lu, column %lu\n", parser.context,
@@ -144,7 +144,7 @@ parser_error:
             }
             break;
 
-        case YAML_PARSER_ERROR:
+        case CI_PARSER_ERROR:
             if (parser.context) {
                 fprintf(stderr, "Parser error: %s at line %lu, column %lu\n"
                         "%s at line %lu, column %lu\n", parser.context,
@@ -159,7 +159,7 @@ parser_error:
             }
             break;
 
-        case YAML_COMPOSER_ERROR:
+        case CI_COMPOSER_ERROR:
             if (parser.context) {
                 fprintf(stderr, "Composer error: %s at line %lu, column %lu\n"
                         "%s at line %lu, column %lu\n", parser.context,
@@ -180,8 +180,8 @@ parser_error:
             break;
     }
 
-    yaml_parser_delete(&parser);
-    yaml_emitter_delete(&emitter);
+    ci_parser_delete(&parser);
+    ci_emitter_delete(&emitter);
 
     return 1;
 
@@ -191,15 +191,15 @@ emitter_error:
 
     switch (emitter.error)
     {
-        case YAML_MEMORY_ERROR:
+        case CI_MEMORY_ERROR:
             fprintf(stderr, "Memory error: Not enough memory for emitting\n");
             break;
 
-        case YAML_WRITER_ERROR:
+        case CI_WRITER_ERROR:
             fprintf(stderr, "Writer error: %s\n", emitter.problem);
             break;
 
-        case YAML_EMITTER_ERROR:
+        case CI_EMITTER_ERROR:
             fprintf(stderr, "Emitter error: %s\n", emitter.problem);
             break;
 
@@ -209,8 +209,8 @@ emitter_error:
             break;
     }
 
-    yaml_parser_delete(&parser);
-    yaml_emitter_delete(&emitter);
+    ci_parser_delete(&parser);
+    ci_emitter_delete(&emitter);
 
     return 1;
 }

@@ -1,4 +1,4 @@
-AM_CPPFLAGS = yaml.h
+AM_CPPFLAGS = ci.h
 DOXYGEN_CFG = $(top_srcdir)/doc/doxygen.cfg
 
 nobase_include_HEADERS = $(AM_CPPFLAGS)

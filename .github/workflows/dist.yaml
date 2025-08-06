@@ -14,15 +14,15 @@ jobs:
 
     - name: Get image
       run: |
-        time docker pull yamlio/libyaml-dev
-        docker images | grep libyaml
+        time docker pull ciio/libci-dev
+        docker images | grep libci
 
     - run: |
-        make -C pkg/docker libyaml-dist-ci
+        make -C pkg/docker libci-dist-ci
         ls -l pkg/docker/output
 
     - uses: actions/upload-artifact@v2
       with:
         name: release
-        path: pkg/docker/output/yaml-0*
+        path: pkg/docker/output/ci-0*
 

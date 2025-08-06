@@ -1,0 +1,16 @@
+# Config file for the ci library.
+#
+# It defines the following variables:
+#   ci_LIBRARIES    - libraries to link against
+
+@PACKAGE_INIT@
+
+set_and_check(ci_TARGETS "@PACKAGE_CONFIG_DIR_CONFIG@/ciTargets.cmake")
+
+if(NOT ci_TARGETS_IMPORTED)
+  set(ci_TARGETS_IMPORTED 1)
+  include(${ci_TARGETS})
+endif()
+
+set(ci_LIBRARIES ci)
+

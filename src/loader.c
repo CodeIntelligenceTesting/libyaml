@@ -1,25 +1,25 @@
 
-#include "yaml_private.h"
+#include "ci_private.h"
 
 /*
  * API functions.
  */
 
-YAML_DECLARE(int)
-yaml_parser_load(yaml_parser_t *parser, yaml_document_t *document);
+CI_DECLARE(int)
+ci_parser_load(ci_parser_t *parser, ci_document_t *document);
 
 /*
  * Error handling.
  */
 
 static int
-yaml_parser_set_composer_error(yaml_parser_t *parser,
-        const char *problem, yaml_mark_t problem_mark);
+ci_parser_set_composer_error(ci_parser_t *parser,
+        const char *problem, ci_mark_t problem_mark);
 
 static int
-yaml_parser_set_composer_error_context(yaml_parser_t *parser,
-        const char *context, yaml_mark_t context_mark,
-        const char *problem, yaml_mark_t problem_mark);
+ci_parser_set_composer_error_context(ci_parser_t *parser,
+        const char *context, ci_mark_t context_mark,
+        const char *problem, ci_mark_t problem_mark);
 
 
 /*
@@ -27,15 +27,15 @@ yaml_parser_set_composer_error_context(yaml_parser_t *parser,
  */
 
 static int
-yaml_parser_register_anchor(yaml_parser_t *parser,
-        int index, yaml_char_t *anchor);
+ci_parser_register_anchor(ci_parser_t *parser,
+        int index, ci_char_t *anchor);
 
 /*
  * Clean up functions.
  */
 
 static void
-yaml_parser_delete_aliases(yaml_parser_t *parser);
+ci_parser_delete_aliases(ci_parser_t *parser);
 
 /*
  * Document loading context.
@@ -50,54 +50,54 @@ struct loader_ctx {
  * Composer functions.
  */
 static int
-yaml_parser_load_nodes(yaml_parser_t *parser, struct loader_ctx *ctx);
+ci_parser_load_nodes(ci_parser_t *parser, struct loader_ctx *ctx);
 
 static int
-yaml_parser_load_document(yaml_parser_t *parser, yaml_event_t *event);
+ci_parser_load_document(ci_parser_t *parser, ci_event_t *event);
 
 static int
-yaml_parser_load_alias(yaml_parser_t *parser, yaml_event_t *event,
+ci_parser_load_alias(ci_parser_t *parser, ci_event_t *event,
         struct loader_ctx *ctx);
 
 static int
-yaml_parser_load_scalar(yaml_parser_t *parser, yaml_event_t *event,
+ci_parser_load_scalar(ci_parser_t *parser, ci_event_t *event,
         struct loader_ctx *ctx);
 
 static int
-yaml_parser_load_sequence(yaml_parser_t *parser, yaml_event_t *event,
+ci_parser_load_sequence(ci_parser_t *parser, ci_event_t *event,
         struct loader_ctx *ctx);
 
 static int
-yaml_parser_load_mapping(yaml_parser_t *parser, yaml_event_t *event,
+ci_parser_load_mapping(ci_parser_t *parser, ci_event_t *event,
         struct loader_ctx *ctx);
 
 static int
-yaml_parser_load_sequence_end(yaml_parser_t *parser, yaml_event_t *event,
+ci_parser_load_sequence_end(ci_parser_t *parser, ci_event_t *event,
         struct loader_ctx *ctx);
 
 static int
-yaml_parser_load_mapping_end(yaml_parser_t *parser, yaml_event_t *event,
+ci_parser_load_mapping_end(ci_parser_t *parser, ci_event_t *event,
         struct loader_ctx *ctx);
 
 /*
  * Load the next document of the stream.
  */
 
-YAML_DECLARE(int)
-yaml_parser_load(yaml_parser_t *parser, yaml_document_t *document)
+CI_DECLARE(int)
+ci_parser_load(ci_parser_t *parser, ci_document_t *document)
 {
-    yaml_event_t event;
+    ci_event_t event;
 
     assert(parser);     /* Non-NULL parser object is expected. */
     assert(document);   /* Non-NULL document object is expected. */
 
-    memset(document, 0, sizeof(yaml_document_t));
-    if (!STACK_INIT(parser, document->nodes, yaml_node_t*))
+    memset(document, 0, sizeof(ci_document_t));
+    if (!STACK_INIT(parser, document->nodes, ci_node_t*))
         goto error;
 
     if (!parser->stream_start_produced) {
-        if (!yaml_parser_parse(parser, &event)) goto error;
-        assert(event.type == YAML_STREAM_START_EVENT);
+        if (!ci_parser_parse(parser, &event)) goto error;
+        assert(event.type == CI_STREAM_START_EVENT);
                         /* STREAM-START is expected. */
     }
 
@@ -105,27 +105,27 @@ yaml_parser_load(yaml_parser_t *parser, yaml_document_t *document)
         return 1;
     }
 
-    if (!yaml_parser_parse(parser, &event)) goto error;
-    if (event.type == YAML_STREAM_END_EVENT) {
+    if (!ci_parser_parse(parser, &event)) goto error;
+    if (event.type == CI_STREAM_END_EVENT) {
         return 1;
     }
 
-    if (!STACK_INIT(parser, parser->aliases, yaml_alias_data_t*))
+    if (!STACK_INIT(parser, parser->aliases, ci_alias_data_t*))
         goto error;
 
     parser->document = document;
 
-    if (!yaml_parser_load_document(parser, &event)) goto error;
+    if (!ci_parser_load_document(parser, &event)) goto error;
 
-    yaml_parser_delete_aliases(parser);
+    ci_parser_delete_aliases(parser);
     parser->document = NULL;
 
     return 1;
 
 error:
 
-    yaml_parser_delete_aliases(parser);
-    yaml_document_delete(document);
+    ci_parser_delete_aliases(parser);
+    ci_document_delete(document);
     parser->document = NULL;
 
     return 0;
@@ -136,10 +136,10 @@ error:
  */
 
 static int
-yaml_parser_set_composer_error(yaml_parser_t *parser,
-        const char *problem, yaml_mark_t problem_mark)
+ci_parser_set_composer_error(ci_parser_t *parser,
+        const char *problem, ci_mark_t problem_mark)
 {
-    parser->error = YAML_COMPOSER_ERROR;
+    parser->error = CI_COMPOSER_ERROR;
     parser->problem = problem;
     parser->problem_mark = problem_mark;
 
@@ -151,11 +151,11 @@ yaml_parser_set_composer_error(yaml_parser_t *parser,
  */
 
 static int
-yaml_parser_set_composer_error_context(yaml_parser_t *parser,
-        const char *context, yaml_mark_t context_mark,
-        const char *problem, yaml_mark_t problem_mark)
+ci_parser_set_composer_error_context(ci_parser_t *parser,
+        const char *context, ci_mark_t context_mark,
+        const char *problem, ci_mark_t problem_mark)
 {
-    parser->error = YAML_COMPOSER_ERROR;
+    parser->error = CI_COMPOSER_ERROR;
     parser->context = context;
     parser->context_mark = context_mark;
     parser->problem = problem;
@@ -169,10 +169,10 @@ yaml_parser_set_composer_error_context(yaml_parser_t *parser,
  */
 
 static void
-yaml_parser_delete_aliases(yaml_parser_t *parser)
+ci_parser_delete_aliases(ci_parser_t *parser)
 {
     while (!STACK_EMPTY(parser, parser->aliases)) {
-        yaml_free(POP(parser, parser->aliases).anchor);
+        ci_free(POP(parser, parser->aliases).anchor);
     }
     STACK_DEL(parser, parser->aliases);
 }
@@ -182,11 +182,11 @@ yaml_parser_delete_aliases(yaml_parser_t *parser)
  */
 
 static int
-yaml_parser_load_document(yaml_parser_t *parser, yaml_event_t *event)
+ci_parser_load_document(ci_parser_t *parser, ci_event_t *event)
 {
     struct loader_ctx ctx = { NULL, NULL, NULL };
 
-    assert(event->type == YAML_DOCUMENT_START_EVENT);
+    assert(event->type == CI_DOCUMENT_START_EVENT);
                         /* DOCUMENT-START is expected. */
 
     parser->document->version_directive
@@ -200,7 +200,7 @@ yaml_parser_load_document(yaml_parser_t *parser, yaml_event_t *event)
     parser->document->start_mark = event->start_mark;
 
     if (!STACK_INIT(parser, ctx, int*)) return 0;
-    if (!yaml_parser_load_nodes(parser, &ctx)) {
+    if (!ci_parser_load_nodes(parser, &ctx)) {
         STACK_DEL(parser, ctx);
         return 0;
     }
@@ -214,41 +214,41 @@ yaml_parser_load_document(yaml_parser_t *parser, yaml_event_t *event)
  */
 
 static int
-yaml_parser_load_nodes(yaml_parser_t *parser, struct loader_ctx *ctx)
+ci_parser_load_nodes(ci_parser_t *parser, struct loader_ctx *ctx)
 {
-    yaml_event_t event;
+    ci_event_t event;
 
     do {
-        if (!yaml_parser_parse(parser, &event)) return 0;
+        if (!ci_parser_parse(parser, &event)) return 0;
 
         switch (event.type) {
-            case YAML_ALIAS_EVENT:
-                if (!yaml_parser_load_alias(parser, &event, ctx)) return 0;
+            case CI_ALIAS_EVENT:
+                if (!ci_parser_load_alias(parser, &event, ctx)) return 0;
                 break;
-            case YAML_SCALAR_EVENT:
-                if (!yaml_parser_load_scalar(parser, &event, ctx)) return 0;
+            case CI_SCALAR_EVENT:
+                if (!ci_parser_load_scalar(parser, &event, ctx)) return 0;
                 break;
-            case YAML_SEQUENCE_START_EVENT:
-                if (!yaml_parser_load_sequence(parser, &event, ctx)) return 0;
+            case CI_SEQUENCE_START_EVENT:
+                if (!ci_parser_load_sequence(parser, &event, ctx)) return 0;
                 break;
-            case YAML_SEQUENCE_END_EVENT:
-                if (!yaml_parser_load_sequence_end(parser, &event, ctx))
+            case CI_SEQUENCE_END_EVENT:
+                if (!ci_parser_load_sequence_end(parser, &event, ctx))
                     return 0;
                 break;
-            case YAML_MAPPING_START_EVENT:
-                if (!yaml_parser_load_mapping(parser, &event, ctx)) return 0;
+            case CI_MAPPING_START_EVENT:
+                if (!ci_parser_load_mapping(parser, &event, ctx)) return 0;
                 break;
-            case YAML_MAPPING_END_EVENT:
-                if (!yaml_parser_load_mapping_end(parser, &event, ctx))
+            case CI_MAPPING_END_EVENT:
+                if (!ci_parser_load_mapping_end(parser, &event, ctx))
                     return 0;
                 break;
             default:
                 assert(0);  /* Could not happen. */
                 return 0;
-            case YAML_DOCUMENT_END_EVENT:
+            case CI_DOCUMENT_END_EVENT:
                 break;
         }
-    } while (event.type != YAML_DOCUMENT_END_EVENT);
+    } while (event.type != CI_DOCUMENT_END_EVENT);
 
     parser->document->end_implicit = event.data.document_end.implicit;
     parser->document->end_mark = event.end_mark;
@@ -261,11 +261,11 @@ yaml_parser_load_nodes(yaml_parser_t *parser, struct loader_ctx *ctx)
  */
 
 static int
-yaml_parser_register_anchor(yaml_parser_t *parser,
-        int index, yaml_char_t *anchor)
+ci_parser_register_anchor(ci_parser_t *parser,
+        int index, ci_char_t *anchor)
 {
-    yaml_alias_data_t data;
-    yaml_alias_data_t *alias_data;
+    ci_alias_data_t data;
+    ci_alias_data_t *alias_data;
 
     if (!anchor) return 1;
 
@@ -276,15 +276,15 @@ yaml_parser_register_anchor(yaml_parser_t *parser,
     for (alias_data = parser->aliases.start;
             alias_data != parser->aliases.top; alias_data ++) {
         if (strcmp((char *)alias_data->anchor, (char *)anchor) == 0) {
-            yaml_free(anchor);
-            return yaml_parser_set_composer_error_context(parser,
+            ci_free(anchor);
+            return ci_parser_set_composer_error_context(parser,
                     "found duplicate anchor; first occurrence",
                     alias_data->mark, "second occurrence", data.mark);
         }
     }
 
     if (!PUSH(parser, parser->aliases, data)) {
-        yaml_free(anchor);
+        ci_free(anchor);
         return 0;
     }
 
@@ -296,10 +296,10 @@ yaml_parser_register_anchor(yaml_parser_t *parser,
  */
 
 static int
-yaml_parser_load_node_add(yaml_parser_t *parser, struct loader_ctx *ctx,
+ci_parser_load_node_add(ci_parser_t *parser, struct loader_ctx *ctx,
         int index)
 {
-    struct yaml_node_s *parent;
+    struct ci_node_s *parent;
     int parent_index;
 
     if (STACK_EMPTY(parser, *ctx)) {
@@ -311,16 +311,16 @@ yaml_parser_load_node_add(yaml_parser_t *parser, struct loader_ctx *ctx,
     parent = &parser->document->nodes.start[parent_index-1];
 
     switch (parent->type) {
-        case YAML_SEQUENCE_NODE:
+        case CI_SEQUENCE_NODE:
             if (!STACK_LIMIT(parser, parent->data.sequence.items, INT_MAX-1))
                 return 0;
             if (!PUSH(parser, parent->data.sequence.items, index))
                 return 0;
             break;
-        case YAML_MAPPING_NODE: {
-            yaml_node_pair_t pair;
+        case CI_MAPPING_NODE: {
+            ci_node_pair_t pair;
             if (!STACK_EMPTY(parser, parent->data.mapping.pairs)) {
-                yaml_node_pair_t *p = parent->data.mapping.pairs.top - 1;
+                ci_node_pair_t *p = parent->data.mapping.pairs.top - 1;
                 if (p->key != 0 && p->value == 0) {
                     p->value = index;
                     break;
@@ -348,22 +348,22 @@ yaml_parser_load_node_add(yaml_parser_t *parser, struct loader_ctx *ctx,
  */
 
 static int
-yaml_parser_load_alias(yaml_parser_t *parser, yaml_event_t *event,
+ci_parser_load_alias(ci_parser_t *parser, ci_event_t *event,
         struct loader_ctx *ctx)
 {
-    yaml_char_t *anchor = event->data.alias.anchor;
-    yaml_alias_data_t *alias_data;
+    ci_char_t *anchor = event->data.alias.anchor;
+    ci_alias_data_t *alias_data;
 
     for (alias_data = parser->aliases.start;
             alias_data != parser->aliases.top; alias_data ++) {
         if (strcmp((char *)alias_data->anchor, (char *)anchor) == 0) {
-            yaml_free(anchor);
-            return yaml_parser_load_node_add(parser, ctx, alias_data->index);
+            ci_free(anchor);
+            return ci_parser_load_node_add(parser, ctx, alias_data->index);
         }
     }
 
-    yaml_free(anchor);
-    return yaml_parser_set_composer_error(parser, "found undefined alias",
+    ci_free(anchor);
+    return ci_parser_set_composer_error(parser, "found undefined alias",
             event->start_mark);
 }
 
@@ -372,18 +372,18 @@ yaml_parser_load_alias(yaml_parser_t *parser, yaml_event_t *event,
  */
 
 static int
-yaml_parser_load_scalar(yaml_parser_t *parser, yaml_event_t *event,
+ci_parser_load_scalar(ci_parser_t *parser, ci_event_t *event,
         struct loader_ctx *ctx)
 {
-    yaml_node_t node;
+    ci_node_t node;
     int index;
-    yaml_char_t *tag = event->data.scalar.tag;
+    ci_char_t *tag = event->data.scalar.tag;
 
     if (!STACK_LIMIT(parser, parser->document->nodes, INT_MAX-1)) goto error;
 
     if (!tag || strcmp((char *)tag, "!") == 0) {
-        yaml_free(tag);
-        tag = yaml_strdup((yaml_char_t *)YAML_DEFAULT_SCALAR_TAG);
+        ci_free(tag);
+        tag = ci_strdup((ci_char_t *)CI_DEFAULT_SCALAR_TAG);
         if (!tag) goto error;
     }
 
@@ -395,15 +395,15 @@ yaml_parser_load_scalar(yaml_parser_t *parser, yaml_event_t *event,
 
     index = parser->document->nodes.top - parser->document->nodes.start;
 
-    if (!yaml_parser_register_anchor(parser, index,
+    if (!ci_parser_register_anchor(parser, index,
                 event->data.scalar.anchor)) return 0;
 
-    return yaml_parser_load_node_add(parser, ctx, index);
+    return ci_parser_load_node_add(parser, ctx, index);
 
 error:
-    yaml_free(tag);
-    yaml_free(event->data.scalar.anchor);
-    yaml_free(event->data.scalar.value);
+    ci_free(tag);
+    ci_free(event->data.scalar.anchor);
+    ci_free(event->data.scalar.value);
     return 0;
 }
 
@@ -412,27 +412,27 @@ error:
  */
 
 static int
-yaml_parser_load_sequence(yaml_parser_t *parser, yaml_event_t *event,
+ci_parser_load_sequence(ci_parser_t *parser, ci_event_t *event,
         struct loader_ctx *ctx)
 {
-    yaml_node_t node;
+    ci_node_t node;
     struct {
-        yaml_node_item_t *start;
-        yaml_node_item_t *end;
-        yaml_node_item_t *top;
+        ci_node_item_t *start;
+        ci_node_item_t *end;
+        ci_node_item_t *top;
     } items = { NULL, NULL, NULL };
     int index;
-    yaml_char_t *tag = event->data.sequence_start.tag;
+    ci_char_t *tag = event->data.sequence_start.tag;
 
     if (!STACK_LIMIT(parser, parser->document->nodes, INT_MAX-1)) goto error;
 
     if (!tag || strcmp((char *)tag, "!") == 0) {
-        yaml_free(tag);
-        tag = yaml_strdup((yaml_char_t *)YAML_DEFAULT_SEQUENCE_TAG);
+        ci_free(tag);
+        tag = ci_strdup((ci_char_t *)CI_DEFAULT_SEQUENCE_TAG);
         if (!tag) goto error;
     }
 
-    if (!STACK_INIT(parser, items, yaml_node_item_t*)) goto error;
+    if (!STACK_INIT(parser, items, ci_node_item_t*)) goto error;
 
     SEQUENCE_NODE_INIT(node, tag, items.start, items.end,
             event->data.sequence_start.style,
@@ -442,10 +442,10 @@ yaml_parser_load_sequence(yaml_parser_t *parser, yaml_event_t *event,
 
     index = parser->document->nodes.top - parser->document->nodes.start;
 
-    if (!yaml_parser_register_anchor(parser, index,
+    if (!ci_parser_register_anchor(parser, index,
                 event->data.sequence_start.anchor)) return 0;
 
-    if (!yaml_parser_load_node_add(parser, ctx, index)) return 0;
+    if (!ci_parser_load_node_add(parser, ctx, index)) return 0;
 
     if (!STACK_LIMIT(parser, *ctx, INT_MAX-1)) return 0;
     if (!PUSH(parser, *ctx, index)) return 0;
@@ -453,13 +453,13 @@ yaml_parser_load_sequence(yaml_parser_t *parser, yaml_event_t *event,
     return 1;
 
 error:
-    yaml_free(tag);
-    yaml_free(event->data.sequence_start.anchor);
+    ci_free(tag);
+    ci_free(event->data.sequence_start.anchor);
     return 0;
 }
 
 static int
-yaml_parser_load_sequence_end(yaml_parser_t *parser, yaml_event_t *event,
+ci_parser_load_sequence_end(ci_parser_t *parser, ci_event_t *event,
         struct loader_ctx *ctx)
 {
     int index;
@@ -467,7 +467,7 @@ yaml_parser_load_sequence_end(yaml_parser_t *parser, yaml_event_t *event,
     assert(((*ctx).top - (*ctx).start) > 0);
 
     index = *((*ctx).top - 1);
-    assert(parser->document->nodes.start[index-1].type == YAML_SEQUENCE_NODE);
+    assert(parser->document->nodes.start[index-1].type == CI_SEQUENCE_NODE);
     parser->document->nodes.start[index-1].end_mark = event->end_mark;
 
     (void)POP(parser, *ctx);
@@ -480,27 +480,27 @@ yaml_parser_load_sequence_end(yaml_parser_t *parser, yaml_event_t *event,
  */
 
 static int
-yaml_parser_load_mapping(yaml_parser_t *parser, yaml_event_t *event,
+ci_parser_load_mapping(ci_parser_t *parser, ci_event_t *event,
         struct loader_ctx *ctx)
 {
-    yaml_node_t node;
+    ci_node_t node;
     struct {
-        yaml_node_pair_t *start;
-        yaml_node_pair_t *end;
-        yaml_node_pair_t *top;
+        ci_node_pair_t *start;
+        ci_node_pair_t *end;
+        ci_node_pair_t *top;
     } pairs = { NULL, NULL, NULL };
     int index;
-    yaml_char_t *tag = event->data.mapping_start.tag;
+    ci_char_t *tag = event->data.mapping_start.tag;
 
     if (!STACK_LIMIT(parser, parser->document->nodes, INT_MAX-1)) goto error;
 
     if (!tag || strcmp((char *)tag, "!") == 0) {
-        yaml_free(tag);
-        tag = yaml_strdup((yaml_char_t *)YAML_DEFAULT_MAPPING_TAG);
+        ci_free(tag);
+        tag = ci_strdup((ci_char_t *)CI_DEFAULT_MAPPING_TAG);
         if (!tag) goto error;
     }
 
-    if (!STACK_INIT(parser, pairs, yaml_node_pair_t*)) goto error;
+    if (!STACK_INIT(parser, pairs, ci_node_pair_t*)) goto error;
 
     MAPPING_NODE_INIT(node, tag, pairs.start, pairs.end,
             event->data.mapping_start.style,
@@ -510,10 +510,10 @@ yaml_parser_load_mapping(yaml_parser_t *parser, yaml_event_t *event,
 
     index = parser->document->nodes.top - parser->document->nodes.start;
 
-    if (!yaml_parser_register_anchor(parser, index,
+    if (!ci_parser_register_anchor(parser, index,
                 event->data.mapping_start.anchor)) return 0;
 
-    if (!yaml_parser_load_node_add(parser, ctx, index)) return 0;
+    if (!ci_parser_load_node_add(parser, ctx, index)) return 0;
 
     if (!STACK_LIMIT(parser, *ctx, INT_MAX-1)) return 0;
     if (!PUSH(parser, *ctx, index)) return 0;
@@ -521,13 +521,13 @@ yaml_parser_load_mapping(yaml_parser_t *parser, yaml_event_t *event,
     return 1;
 
 error:
-    yaml_free(tag);
-    yaml_free(event->data.mapping_start.anchor);
+    ci_free(tag);
+    ci_free(event->data.mapping_start.anchor);
     return 0;
 }
 
 static int
-yaml_parser_load_mapping_end(yaml_parser_t *parser, yaml_event_t *event,
+ci_parser_load_mapping_end(ci_parser_t *parser, ci_event_t *event,
         struct loader_ctx *ctx)
 {
     int index;
@@ -535,7 +535,7 @@ yaml_parser_load_mapping_end(yaml_parser_t *parser, yaml_event_t *event,
     assert(((*ctx).top - (*ctx).start) > 0);
 
     index = *((*ctx).top - 1);
-    assert(parser->document->nodes.start[index-1].type == YAML_MAPPING_NODE);
+    assert(parser->document->nodes.start[index-1].type == CI_MAPPING_NODE);
     parser->document->nodes.start[index-1].end_mark = event->end_mark;
 
     (void)POP(parser, *ctx);

@@ -1,15 +1,15 @@
-# How to Make a `libyaml` Release
+# How to Make a `libci` Release
 
 ## Versioning
 
-Update libyaml version in:
+Update libci version in:
 * announcement.msg
 * Changes
 * CMakeLists.txt
-  * `YAML_VERSION_MAJOR`, `YAML_VERSION_MINOR`, `YAML_VERSION_PATCH`
+  * `CI_VERSION_MAJOR`, `CI_VERSION_MINOR`, `CI_VERSION_PATCH`
 * .appveyor.yml
 * configure.ac
-  * `YAML_MAJOR`, `YAML_MINOR`, `YAML_PATCH`, `YAML_RELEASE`, `YAML_CURRENT`, `YAML_REVISION`
+  * `CI_MAJOR`, `CI_MINOR`, `CI_PATCH`, `CI_RELEASE`, `CI_CURRENT`, `CI_REVISION`
 
 Commit and push everything to `release/0.x.y`.
 
@@ -19,11 +19,11 @@ Commit and push everything to `release/0.x.y`.
 
 The github workflow:
 
-    .github/workflows/dist.yaml
+    .github/workflows/dist.ci
 
 will do this automatically for you.
 
-#### .github/workflows/dist.yaml
+#### .github/workflows/dist.ci
 
 This workflow will create release archives (`tar.gz` and `zip`).
 
@@ -32,7 +32,7 @@ This workflow will create release archives (`tar.gz` and `zip`).
 Make sure you have a clean git repository (no changed files).
 The following process will clone your current git directory.
 
-This will need the docker image `yamlio/libyaml-dev`.
+This will need the docker image `ciio/libci-dev`.
 You can either pull it, or create it yourself:
 
     make docker-build
@@ -71,7 +71,7 @@ Upload the tar.gz and .zip file.
 
 You can "Save draft" and publish later, or directly click on "Publish release".
 
-## Update pyyaml.org
+## Update pyci.org
 
-See <https://github.com/yaml/pyyaml.org/blob/master/ReadMe.md>.
+See <https://github.com/ci/pyci.org/blob/master/ReadMe.md>.
 

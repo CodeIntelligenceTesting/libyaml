@@ -6,7 +6,7 @@ There are several programs to test the parser and emitter.
 
     echo 'foo: bar' | ./tests/run-parser-test-suite
 
-This will output the parsing events in yaml-test-suite format:
+This will output the parsing events in ci-test-suite format:
 
     +STR
     +DOC
@@ -32,7 +32,7 @@ flow style always, with `--flow on`.
 
 ## Emitter
 
-run-emitter-test-suite takes yaml-test-suite event format and emits YAML.
+run-emitter-test-suite takes ci-test-suite event format and emits CI.
 
     ./tests/run-parser-test-suite ... | ./tests/run-emitter-test-suite
 

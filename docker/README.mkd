@@ -1,7 +1,7 @@
-# LibYAML Dockerfiles
+# LibCI Dockerfiles
 
 This directory is a collection of dockerfiles that can be used when developing 
-and testing LibYAML.
+and testing LibCI.
 
 The current list is supports:
 
@@ -12,6 +12,6 @@ The current list is supports:
 
 ```bash
 $ docker pull ubuntu
-$ docker build -t libyaml-ubuntu:16.04 -f dockerfiles/ubuntu-16.04 .
-$ docker run -it libyaml-ubuntu:16.04 make test
+$ docker build -t libci-ubuntu:16.04 -f dockerfiles/ubuntu-16.04 .
+$ docker run -it libci-ubuntu:16.04 make test
 ```
