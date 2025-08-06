@@ -268,7 +268,7 @@ main(int argc, char *argv[])
         file = fopen(argv[number], "rb");
         assert(file);
 
-        assert(ci_parser_initialize(&parser));
+        assert(ci_parser_init(&parser));
         ci_parser_set_input_file(&parser, file);
         assert(ci_emitter_initialize(&emitter));
         if (canonical) {
@@ -301,7 +301,7 @@ main(int argc, char *argv[])
         if (!error)
         {
             count = done = 0;
-            assert(ci_parser_initialize(&parser));
+            assert(ci_parser_init(&parser));
             ci_parser_set_input_string(&parser, buffer, written);
 
             while (!done)

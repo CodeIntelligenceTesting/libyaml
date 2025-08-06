@@ -69,7 +69,7 @@ main(int argc, char *argv[])
 
     /* Initialize the parser and emitter objects. */
 
-    if (!ci_parser_initialize(&parser)) {
+    if (!ci_parser_init(&parser)) {
         fprintf(stderr, "Could not initialize the parser object\n");
         return 1;
     }

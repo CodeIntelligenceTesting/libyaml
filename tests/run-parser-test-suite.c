@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
     }
     assert(input);
 
-    if (!ci_parser_initialize(&parser)) {
+    if (!ci_parser_init(&parser)) {
         fprintf(stderr, "Could not initialize the parser object\n");
         return 1;
     }

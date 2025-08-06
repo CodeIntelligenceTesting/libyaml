@@ -174,7 +174,7 @@ ci_queue_extend(void **start, void **head, void **tail, void **end)
  */
 
 CI_DECLARE(int)
-ci_parser_initialize(ci_parser_t *parser)
+ci_parser_init(ci_parser_t *parser)
 {
     assert(parser);     /* Non-NULL parser object expected. */
 

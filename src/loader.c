@@ -6,7 +6,7 @@
  */
 
 CI_DECLARE(int)
-ci_parser_load(ci_parser_t *parser, ci_document_t *document);
+ci_parser_create(ci_parser_t *parser, ci_document_t *document);
 
 /*
  * Error handling.
@@ -50,33 +50,33 @@ struct loader_ctx {
  * Composer functions.
  */
 static int
-ci_parser_load_nodes(ci_parser_t *parser, struct loader_ctx *ctx);
+ci_parser_create_nodes(ci_parser_t *parser, struct loader_ctx *ctx);
 
 static int
-ci_parser_load_document(ci_parser_t *parser, ci_event_t *event);
+ci_parser_create_document(ci_parser_t *parser, ci_event_t *event);
 
 static int
-ci_parser_load_alias(ci_parser_t *parser, ci_event_t *event,
+ci_parser_create_alias(ci_parser_t *parser, ci_event_t *event,
         struct loader_ctx *ctx);
 
 static int
-ci_parser_load_scalar(ci_parser_t *parser, ci_event_t *event,
+ci_parser_create_scalar(ci_parser_t *parser, ci_event_t *event,
         struct loader_ctx *ctx);
 
 static int
-ci_parser_load_sequence(ci_parser_t *parser, ci_event_t *event,
+ci_parser_create_sequence(ci_parser_t *parser, ci_event_t *event,
         struct loader_ctx *ctx);
 
 static int
-ci_parser_load_mapping(ci_parser_t *parser, ci_event_t *event,
+ci_parser_create_mapping(ci_parser_t *parser, ci_event_t *event,
         struct loader_ctx *ctx);
 
 static int
-ci_parser_load_sequence_end(ci_parser_t *parser, ci_event_t *event,
+ci_parser_create_sequence_end(ci_parser_t *parser, ci_event_t *event,
         struct loader_ctx *ctx);
 
 static int
-ci_parser_load_mapping_end(ci_parser_t *parser, ci_event_t *event,
+ci_parser_create_mapping_end(ci_parser_t *parser, ci_event_t *event,
         struct loader_ctx *ctx);
 
 /*
@@ -84,7 +84,7 @@ ci_parser_load_mapping_end(ci_parser_t *parser, ci_event_t *event,
  */
 
 CI_DECLARE(int)
-ci_parser_load(ci_parser_t *parser, ci_document_t *document)
+ci_parser_create(ci_parser_t *parser, ci_document_t *document)
 {
     ci_event_t event;
 
@@ -115,7 +115,7 @@ ci_parser_load(ci_parser_t *parser, ci_document_t *document)
 
     parser->document = document;
 
-    if (!ci_parser_load_document(parser, &event)) goto error;
+    if (!ci_parser_create_document(parser, &event)) goto error;
 
     ci_parser_delete_aliases(parser);
     parser->document = NULL;
@@ -182,7 +182,7 @@ ci_parser_delete_aliases(ci_parser_t *parser)
  */
 
 static int
-ci_parser_load_document(ci_parser_t *parser, ci_event_t *event)
+ci_parser_create_document(ci_parser_t *parser, ci_event_t *event)
 {
     struct loader_ctx ctx = { NULL, NULL, NULL };
 
@@ -200,7 +200,7 @@ ci_parser_load_document(ci_parser_t *parser, ci_event_t *event)
     parser->document->start_mark = event->start_mark;
 
     if (!STACK_INIT(parser, ctx, int*)) return 0;
-    if (!ci_parser_load_nodes(parser, &ctx)) {
+    if (!ci_parser_create_nodes(parser, &ctx)) {
         STACK_DEL(parser, ctx);
         return 0;
     }
@@ -214,7 +214,7 @@ ci_parser_load_document(ci_parser_t *parser, ci_event_t *event)
  */
 
 static int
-ci_parser_load_nodes(ci_parser_t *parser, struct loader_ctx *ctx)
+ci_parser_create_nodes(ci_parser_t *parser, struct loader_ctx *ctx)
 {
     ci_event_t event;
 
@@ -223,23 +223,23 @@ ci_parser_load_nodes(ci_parser_t *parser, struct loader_ctx *ctx)
 
         switch (event.type) {
             case CI_ALIAS_EVENT:
-                if (!ci_parser_load_alias(parser, &event, ctx)) return 0;
+                if (!ci_parser_create_alias(parser, &event, ctx)) return 0;
                 break;
             case CI_SCALAR_EVENT:
-                if (!ci_parser_load_scalar(parser, &event, ctx)) return 0;
+                if (!ci_parser_create_scalar(parser, &event, ctx)) return 0;
                 break;
             case CI_SEQUENCE_START_EVENT:
-                if (!ci_parser_load_sequence(parser, &event, ctx)) return 0;
+                if (!ci_parser_create_sequence(parser, &event, ctx)) return 0;
                 break;
             case CI_SEQUENCE_END_EVENT:
-                if (!ci_parser_load_sequence_end(parser, &event, ctx))
+                if (!ci_parser_create_sequence_end(parser, &event, ctx))
                     return 0;
                 break;
             case CI_MAPPING_START_EVENT:
-                if (!ci_parser_load_mapping(parser, &event, ctx)) return 0;
+                if (!ci_parser_create_mapping(parser, &event, ctx)) return 0;
                 break;
             case CI_MAPPING_END_EVENT:
-                if (!ci_parser_load_mapping_end(parser, &event, ctx))
+                if (!ci_parser_create_mapping_end(parser, &event, ctx))
                     return 0;
                 break;
             default:
@@ -296,7 +296,7 @@ ci_parser_register_anchor(ci_parser_t *parser,
  */
 
 static int
-ci_parser_load_node_add(ci_parser_t *parser, struct loader_ctx *ctx,
+ci_parser_create_node_add(ci_parser_t *parser, struct loader_ctx *ctx,
         int index)
 {
     struct ci_node_s *parent;
@@ -348,7 +348,7 @@ ci_parser_load_node_add(ci_parser_t *parser, struct loader_ctx *ctx,
  */
 
 static int
-ci_parser_load_alias(ci_parser_t *parser, ci_event_t *event,
+ci_parser_create_alias(ci_parser_t *parser, ci_event_t *event,
         struct loader_ctx *ctx)
 {
     ci_char_t *anchor = event->data.alias.anchor;
@@ -358,7 +358,7 @@ ci_parser_load_alias(ci_parser_t *parser, ci_event_t *event,
             alias_data != parser->aliases.top; alias_data ++) {
         if (strcmp((char *)alias_data->anchor, (char *)anchor) == 0) {
             ci_free(anchor);
-            return ci_parser_load_node_add(parser, ctx, alias_data->index);
+            return ci_parser_create_node_add(parser, ctx, alias_data->index);
         }
     }
 
@@ -372,7 +372,7 @@ ci_parser_load_alias(ci_parser_t *parser, ci_event_t *event,
  */
 
 static int
-ci_parser_load_scalar(ci_parser_t *parser, ci_event_t *event,
+ci_parser_create_scalar(ci_parser_t *parser, ci_event_t *event,
         struct loader_ctx *ctx)
 {
     ci_node_t node;
@@ -398,7 +398,7 @@ ci_parser_load_scalar(ci_parser_t *parser, ci_event_t *event,
     if (!ci_parser_register_anchor(parser, index,
                 event->data.scalar.anchor)) return 0;
 
-    return ci_parser_load_node_add(parser, ctx, index);
+    return ci_parser_create_node_add(parser, ctx, index);
 
 error:
     ci_free(tag);
@@ -412,7 +412,7 @@ error:
  */
 
 static int
-ci_parser_load_sequence(ci_parser_t *parser, ci_event_t *event,
+ci_parser_create_sequence(ci_parser_t *parser, ci_event_t *event,
         struct loader_ctx *ctx)
 {
     ci_node_t node;
@@ -445,7 +445,7 @@ ci_parser_load_sequence(ci_parser_t *parser, ci_event_t *event,
     if (!ci_parser_register_anchor(parser, index,
                 event->data.sequence_start.anchor)) return 0;
 
-    if (!ci_parser_load_node_add(parser, ctx, index)) return 0;
+    if (!ci_parser_create_node_add(parser, ctx, index)) return 0;
 
     if (!STACK_LIMIT(parser, *ctx, INT_MAX-1)) return 0;
     if (!PUSH(parser, *ctx, index)) return 0;
@@ -459,7 +459,7 @@ error:
 }
 
 static int
-ci_parser_load_sequence_end(ci_parser_t *parser, ci_event_t *event,
+ci_parser_create_sequence_end(ci_parser_t *parser, ci_event_t *event,
         struct loader_ctx *ctx)
 {
     int index;
@@ -480,7 +480,7 @@ ci_parser_load_sequence_end(ci_parser_t *parser, ci_event_t *event,
  */
 
 static int
-ci_parser_load_mapping(ci_parser_t *parser, ci_event_t *event,
+ci_parser_create_mapping(ci_parser_t *parser, ci_event_t *event,
         struct loader_ctx *ctx)
 {
     ci_node_t node;
@@ -513,7 +513,7 @@ ci_parser_load_mapping(ci_parser_t *parser, ci_event_t *event,
     if (!ci_parser_register_anchor(parser, index,
                 event->data.mapping_start.anchor)) return 0;
 
-    if (!ci_parser_load_node_add(parser, ctx, index)) return 0;
+    if (!ci_parser_create_node_add(parser, ctx, index)) return 0;
 
     if (!STACK_LIMIT(parser, *ctx, INT_MAX-1)) return 0;
     if (!PUSH(parser, *ctx, index)) return 0;
@@ -527,7 +527,7 @@ error:
 }
 
 static int
-ci_parser_load_mapping_end(ci_parser_t *parser, ci_event_t *event,
+ci_parser_create_mapping_end(ci_parser_t *parser, ci_event_t *event,
         struct loader_ctx *ctx)
 {
     int index;

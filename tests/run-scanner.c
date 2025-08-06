@@ -33,7 +33,7 @@ main(int argc, char *argv[])
         file = fopen(argv[number], "rb");
         assert(file);
 
-        assert(ci_parser_initialize(&parser));
+        assert(ci_parser_init(&parser));
 
         ci_parser_set_input_file(&parser, file);
 

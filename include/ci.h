@@ -1320,7 +1320,7 @@ typedef struct ci_parser_s {
  */
 
 CI_DECLARE(int)
-ci_parser_initialize(ci_parser_t *parser);
+ci_parser_init(ci_parser_t *parser);
 
 /**
  * Destroy a parser.
@@ -1395,7 +1395,7 @@ ci_parser_set_encoding(ci_parser_t *parser, ci_encoding_t encoding);
  * produced token object using the @c ci_token_delete function.
  *
  * An application must not alternate the calls of ci_parser_scan() with the
- * calls of ci_parser_parse() or ci_parser_load(). Doing this will break
+ * calls of ci_parser_parse() or ci_parser_create(). Doing this will break
  * the parser.
  *
  * @param[in,out]   parser      A parser object.
@@ -1419,7 +1419,7 @@ ci_parser_scan(ci_parser_t *parser, ci_token_t *token);
  * produced event object using the ci_event_delete() function.
  *
  * An application must not alternate the calls of ci_parser_parse() with the
- * calls of ci_parser_scan() or ci_parser_load(). Doing this will break the
+ * calls of ci_parser_scan() or ci_parser_create(). Doing this will break the
  * parser.
  *
  * @param[in,out]   parser      A parser object.
@@ -1443,7 +1443,7 @@ ci_parser_parse(ci_parser_t *parser, ci_event_t *event);
  * An application is responsible for freeing any data associated with the
  * produced document object using the ci_document_delete() function.
  *
- * An application must not alternate the calls of ci_parser_load() with the
+ * An application must not alternate the calls of ci_parser_create() with the
  * calls of ci_parser_scan() or ci_parser_parse(). Doing this will break
  * the parser.
  *
@@ -1454,7 +1454,7 @@ ci_parser_parse(ci_parser_t *parser, ci_event_t *event);
  */
 
 CI_DECLARE(int)
-ci_parser_load(ci_parser_t *parser, ci_document_t *document);
+ci_parser_create(ci_parser_t *parser, ci_document_t *document);
 
 /**
  * Set the maximum depth of nesting.
@@ -1964,7 +1964,7 @@ ci_emitter_close(ci_emitter_t *emitter);
 /**
  * Emit a CI document.
  *
- * The document object may be generated using the ci_parser_load() function
+ * The document object may be generated using the ci_parser_create() function
  * or the ci_document_initialize() function.  The emitter takes the
  * responsibility for the document object and destroys its content after
  * it is emitted. The document object is destroyed even if the function fails.

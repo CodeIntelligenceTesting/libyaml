@@ -65,7 +65,7 @@ main(int argc, char *argv[])
 
     /* Initialize the parser and emitter objects. */
 
-    if (!ci_parser_initialize(&parser))
+    if (!ci_parser_init(&parser))
         goto parser_error;
 
     if (!ci_emitter_initialize(&emitter))
@@ -88,7 +88,7 @@ main(int argc, char *argv[])
     {
         /* Get the next event. */
 
-        if (!ci_parser_load(&parser, &document))
+        if (!ci_parser_create(&parser, &document))
             goto parser_error;
 
         /* Check if this is the stream end. */

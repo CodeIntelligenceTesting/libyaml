@@ -129,7 +129,7 @@ int check_utf8_sequences(void)
         printf("\t%s:\n", title);
         while(1) {
             while (*end != '|' && *end != '!') end++;
-            ci_parser_initialize(&parser);
+            ci_parser_init(&parser);
             ci_parser_set_input_string(&parser, (unsigned char *)start, end-start);
             result = ci_parser_update_buffer(&parser, end-start);
             if (result != check) {
@@ -176,7 +176,7 @@ int check_boms(void)
         char *end = start;
         while (*end != '!') end++;
         printf("\t%s: ", title);
-        ci_parser_initialize(&parser);
+        ci_parser_init(&parser);
         ci_parser_set_input_string(&parser, (unsigned char *)start, end-start);
         result = ci_parser_update_buffer(&parser, end-start);
         if (!result) {
@@ -227,7 +227,7 @@ int check_long_utf8(void)
             buffer[k++] = '\xaf';
         }
     }
-    ci_parser_initialize(&parser);
+    ci_parser_init(&parser);
     ci_parser_set_input_string(&parser, buffer, 3+LONG*2);
     for (k = 0; k < LONG; k++) {
         if (!parser.unread) {
@@ -298,7 +298,7 @@ int check_long_utf16(void)
             buffer[k++] = '\x04';
         }
     }
-    ci_parser_initialize(&parser);
+    ci_parser_init(&parser);
     ci_parser_set_input_string(&parser, buffer, 2+LONG*2);
     for (k = 0; k < LONG; k++) {
         if (!parser.unread) {
