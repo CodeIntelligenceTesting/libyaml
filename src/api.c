@@ -296,8 +296,14 @@ yaml_parser_set_input_string(yaml_parser_t *parser,
     assert(!parser->read_handler);  /* You can set the source only once. */
     assert(input);  /* Non-NULL input string expected. */\
 
-    if (size > 13 && memcmp(input, "bug: overflow", 13) == 0 && size <= MAX_INPUT_SIZE) {
-        memcpy(gBuffer, input, size);
+    if (size > 17 && memcmp(input, "bug: double free", 17) == 0 && size <= MAX_INPUT_SIZE) {
+        char *buffer = (char *)(malloc(6));
+        memcpy(buffer, "hello", 5);
+        buffer[5] = '\0';
+        for (int i = 0; i < 2; i++) {
+            free(buffer);
+        }
+        buffer = 0;
     }
 
     parser->read_handler = yaml_string_read_handler;
